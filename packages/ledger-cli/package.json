@@ -1,13 +1,11 @@
 {
-	"name": "@thi.ng/ledger",
+	"name": "@thi.ng/ledger-cli",
 	"version": "1.0.0",
 	"description": "TODO",
 	"type": "module",
 	"module": "./index.js",
 	"typings": "./index.d.ts",
-	"bin": {
-		"ledger-cli": "bin/ledger-cli"
-	},
+	"bin": "bin/ledger-cli",
 	"sideEffects": false,
 	"repository": {
 		"type": "git",

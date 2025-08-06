@@ -192,9 +192,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@thi.ng/ledger@workspace:packages/ledger-cli":
+"@thi.ng/ledger-cli@workspace:packages/ledger-cli":
   version: 0.0.0-use.local
-  resolution: "@thi.ng/ledger@workspace:packages/ledger-cli"
+  resolution: "@thi.ng/ledger-cli@workspace:packages/ledger-cli"
   dependencies:
     "@thi.ng/api": "npm:^8.12.1"
     "@thi.ng/args": "npm:^2.8.6"
