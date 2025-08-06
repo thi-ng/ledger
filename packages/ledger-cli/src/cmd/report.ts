@@ -37,7 +37,7 @@ async function command({ inputs, opts, logger }: AppCtx<ReportOpts>) {
 		rows.push([k, (bal.amount / 100).toFixed(2), bal.curr, bal.num]);
 	}
 	console.log(
-		table(["Account", "Amount", "Currency", "TX count"], rows, {
+		table(["Balance", "Amount", "Currency", "TX count"], rows, {
 			align: ["l", "r", "l", "r"],
 		})
 	);
@@ -51,39 +51,35 @@ export interface ComputeBalanceOpts {
 
 export const computeBalances = (
 	entries: Entry[],
-	{ filters, from, to }: Partial<ComputeBalanceOpts>
+	opts: Partial<ComputeBalanceOpts>
 ) => {
 	const balances: Record<
 		string,
 		{ amount: number; curr: string; num: number }
 	> = {};
-	for (let entry of entries) {
-		if (
-			filters?.length &&
-			!filters.some((f) => entry.accountB.startsWith(f))
-		)
-			continue;
-		if (from && entry.date < from) continue;
-		if (to && entry.date > to) continue;
 
-		const a =
-			balances[entry.accountA] ??
-			(balances[entry.accountA] = {
-				amount: 0,
-				curr: entry.currency,
-				num: 0,
-			});
-		const b =
-			balances[entry.accountB] ??
-			(balances[entry.accountB] = {
-				amount: 0,
-				curr: entry.currency,
-				num: 0,
-			});
+	const ensureBalance = (id: string, curr: string) =>
+		balances[id] ?? (balances[id] = { curr, amount: 0, num: 0 });
+
+	for (let entry of entries) {
+		if (!includeEntry(entry, opts)) continue;
+		const a = ensureBalance(entry.accountA, entry.currency);
+		const b = ensureBalance(entry.accountB, entry.currency);
 		a.amount += entry.amount;
 		b.amount -= entry.amount;
 		a.num++;
 		b.num++;
 	}
 	return balances;
+};
+
+const includeEntry = (
+	entry: Entry,
+	{ filters, from, to }: Partial<ComputeBalanceOpts>
+): boolean => {
+	if (filters?.length && !filters.some((f) => entry.accountB.startsWith(f)))
+		return false;
+	if (from && entry.date < from) return false;
+	if (to && entry.date > to) return false;
+	return true;
 };
