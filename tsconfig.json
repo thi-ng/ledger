@@ -1,0 +1,22 @@
+{
+	"compilerOptions": {
+		"declaration": true,
+		"declarationMap": false,
+		"esModuleInterop": true,
+		"experimentalDecorators": true,
+		"importHelpers": true,
+		"incremental": true,
+		"isolatedModules": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"preserveConstEnums": true,
+		"strict": true,
+		"strictNullChecks": true,
+		"target": "es2024",
+		"useDefineForClassFields": true,
+		"verbatimModuleSyntax": true
+	},
+	"exclude": ["**/node_modules"]
+}

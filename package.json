@@ -1,0 +1,22 @@
+{
+	"private": true,
+	"type": "module",
+	"workspaces": [
+		"packages/*",
+		"tools"
+	],
+	"packageManager": "yarn@4.9.2",
+	"scripts": {
+		"@thi.ng": "yarn workspaces foreach -pv --all --include '@thi.ng/*'",
+		"@example": "yarn workspaces foreach -pv --all --include '@example/*'",
+		"build": "yarn @thi.ng -t run build",
+		"build:examples": "yarn @example run build",
+		"clean": "yarn @thi.ng run clean",
+		"doc": "yarn @thi.ng run doc",
+		"test": "(cd packages && bun test)"
+	},
+	"devDependencies": {
+		"bun-types": "1.2.19",
+		"dotenv": "^17.2.1"
+	}
+}

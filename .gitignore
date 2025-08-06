@@ -1,0 +1,13 @@
+/.yarn
+
+dev
+doc
+dist
+node_modules
+public
+
+*.css
+*.js
+*.d.ts
+*.map
+*.tsbuildinfo
