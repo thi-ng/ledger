@@ -15,6 +15,8 @@ export interface AppCtx<T extends CommonOpts>
 export interface Transaction {
 	accountA: string;
 	accountB: string;
+	currencyA: string;
+	currencyB: string;
 	date: string;
 	type: string;
 	desc: string;
@@ -22,13 +24,20 @@ export interface Transaction {
 	payee: string;
 	payeeID: string;
 	amount: number;
-	currency: string;
-	hash?: string;
+	rate: number;
+	hash: string;
 }
 
 export type HashableTransaction = Pick<
 	Transaction,
-	"accountA" | "accountB" | "date" | "desc" | "ref" | "amount" | "currency"
+	| "accountA"
+	| "accountB"
+	| "currencyA"
+	| "currencyB"
+	| "date"
+	| "desc"
+	| "ref"
+	| "amount"
 >;
 
 export interface Classifier {
@@ -37,6 +46,7 @@ export interface Classifier {
 }
 
 export interface ClassifierSpec {
+	accountA: string;
 	defaults: Partial<Entry>;
 	rules: Classifier[];
 }
