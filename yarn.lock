@@ -70,9 +70,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@thi.ng/args@npm:^2.8.6":
-  version: 2.8.6
-  resolution: "@thi.ng/args@npm:2.8.6"
+"@thi.ng/args@npm:^2.9.0":
+  version: 2.9.0
+  resolution: "@thi.ng/args@npm:2.9.0"
   dependencies:
     "@thi.ng/api": "npm:^8.12.1"
     "@thi.ng/checks": "npm:^3.7.15"
@@ -80,7 +80,7 @@ __metadata:
     "@thi.ng/logger": "npm:^3.1.16"
     "@thi.ng/strings": "npm:^3.9.21"
     "@thi.ng/text-format": "npm:^2.2.40"
-  checksum: 10/11ceed63d6fa7885ba2c2f90a9a80e8019992e164c31c38da7c269a3b7746c7095a839d5bb8d67623883d73b8c924a605315ab58a7c17fd4b6220a43c87e9333
+  checksum: 10/58a83476743cabbe7bb86d16436c515e68f9fb1b7fa2e204ac18fec8c470713dba6fd9d4adc25316f6c585b9ea41be0186b87636a23ca2e80269a41d806a7258
   languageName: node
   linkType: hard
 
@@ -124,15 +124,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@thi.ng/csv@npm:^2.4.7":
-  version: 2.4.7
-  resolution: "@thi.ng/csv@npm:2.4.7"
+"@thi.ng/csv@npm:^2.5.3":
+  version: 2.5.3
+  resolution: "@thi.ng/csv@npm:2.5.3"
   dependencies:
     "@thi.ng/api": "npm:^8.12.1"
     "@thi.ng/checks": "npm:^3.7.15"
+    "@thi.ng/errors": "npm:^2.5.41"
     "@thi.ng/strings": "npm:^3.9.21"
     "@thi.ng/transducers": "npm:^9.6.6"
-  checksum: 10/3fcff4017689862c2a69cb07203586b63b4fe1f96b020248bc1d4d01a0a56103b121522df9b3e5ff9682d675cb077e2cc7b5a63056c00df2192922d92d2b4523
+  checksum: 10/1d9881aa2e514d795bafbeaa2c523d777d150408a383b64bf6f56188e747cc510559ab9d54508fa908ba212a1a917435ba0174b3759c612c3f1ca81c92b48ad1
   languageName: node
   linkType: hard
 
@@ -197,9 +198,9 @@ __metadata:
   resolution: "@thi.ng/ledger-cli@workspace:packages/ledger-cli"
   dependencies:
     "@thi.ng/api": "npm:^8.12.1"
-    "@thi.ng/args": "npm:^2.8.6"
+    "@thi.ng/args": "npm:^2.9.0"
     "@thi.ng/compare": "npm:^2.4.27"
-    "@thi.ng/csv": "npm:^2.4.7"
+    "@thi.ng/csv": "npm:^2.5.3"
     "@thi.ng/date": "npm:^2.7.61"
     "@thi.ng/errors": "npm:^2.5.41"
     "@thi.ng/file-io": "npm:^2.2.6"
