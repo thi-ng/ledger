@@ -1,6 +1,7 @@
 import { string, type Args, type Command } from "@thi.ng/args";
 import { readJSON } from "@thi.ng/file-io";
 import { table, type Row } from "@thi.ng/markdown-table";
+import { defMultiTrie } from "@thi.ng/trie";
 import type { AppCtx, CommonOpts, Entry } from "../api.js";
 import { ARG_JOURNAL } from "../args.js";
 
@@ -31,10 +32,33 @@ async function command({ inputs, opts, logger }: AppCtx<ReportOpts>) {
 		from: opts.from,
 		to: opts.to,
 	});
+	const keys = Object.keys(balances).sort();
+	const trie = defMultiTrie(
+		keys.map((k) => <const>[k.split(":"), balances[k].amount])
+	);
+	const seen = new Set<string>();
 	const rows: Row[] = [];
-	for (let k of Object.keys(balances).sort()) {
-		const bal = balances[k];
-		rows.push([k, (bal.amount / 100).toFixed(2), bal.curr, bal.num]);
+	for (let k of keys) {
+		const parts = k.split(":");
+		for (let i = 0; i < parts.length; i++) {
+			const currParts = parts.slice(0, i + 1);
+			const currKey = currParts.join(":");
+			if (inputs.length && !inputs.some((x) => currKey.startsWith(x)))
+				continue;
+			if (seen.has(currKey)) continue;
+			const children = [...trie.values(currParts)];
+			const sum = children.length
+				? children.reduce((a, b) => a + b, 0)
+				: balances[currKey].amount;
+			const num = children.length
+				? [...trie.keys(currParts)].reduce(
+						(a, k) => a + balances[k.join(":")].num,
+						0
+				  )
+				: balances[currKey].num;
+			rows.push([currKey, (sum / 100).toFixed(2), balances[k].curr, num]);
+			seen.add(currKey);
+		}
 	}
 	console.log(
 		table(["Balance", "Amount", "Currency", "TX count"], rows, {
