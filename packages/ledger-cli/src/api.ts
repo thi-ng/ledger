@@ -59,3 +59,12 @@ export interface Entry {
 	amount: number;
 	currency: string;
 }
+
+/**
+ * Only list non-standard currencies here. Default precision is 2 digits.
+ */
+export const CURRENCY_DIGITS: Record<string, number> = {
+	BTC: 8,
+	ETH: 9,
+	XTZ: 6,
+};

@@ -24,6 +24,7 @@ cliApp<CommonOpts, AppCtx<any>>({
 	},
 	start: 3,
 	usage: {
+		groups: ["flags", "main", "filters"],
 		prefix: `${THING_HEADER(PKG.name, PKG.version, PKG.desc)}
 
 Usage: ledger-cli <cmd> [opts] input [...]

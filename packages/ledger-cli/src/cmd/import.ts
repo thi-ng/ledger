@@ -36,7 +36,7 @@ interface ImportOpts extends CommonOpts {
 }
 
 export const IMPORT: Command<ImportOpts, CommonOpts, AppCtx<ImportOpts>> = {
-	desc: "Import transactions from CSV",
+	desc: "Import transactions from CSV using provided import rules & transforms",
 	opts: <Args<ImportOpts>>{
 		...ARG_DB,
 		...ARG_DRY_RUN,

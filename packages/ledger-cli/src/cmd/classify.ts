@@ -23,7 +23,7 @@ export const CLASSIFY: Command<
 	CommonOpts,
 	AppCtx<ClassifyOpts>
 > = {
-	desc: "Classify transactions",
+	desc: "Classify transactions using provided rules & filters",
 	opts: <Args<ClassifyOpts>>{
 		...ARG_DB,
 		...ARG_DRY_RUN,
