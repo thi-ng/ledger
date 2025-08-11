@@ -202,6 +202,7 @@ __metadata:
     "@thi.ng/compare": "npm:^2.4.27"
     "@thi.ng/csv": "npm:^2.5.5"
     "@thi.ng/date": "npm:^2.7.63"
+    "@thi.ng/defmulti": "npm:^3.0.75"
     "@thi.ng/errors": "npm:^2.5.41"
     "@thi.ng/file-io": "npm:^2.2.8"
     "@thi.ng/lispy": "npm:^0.4.5"

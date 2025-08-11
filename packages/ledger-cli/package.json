@@ -27,6 +27,7 @@
 		"@thi.ng/compare": "^2.4.27",
 		"@thi.ng/csv": "^2.5.5",
 		"@thi.ng/date": "^2.7.63",
+		"@thi.ng/defmulti": "^3.0.75",
 		"@thi.ng/errors": "^2.5.41",
 		"@thi.ng/file-io": "^2.2.8",
 		"@thi.ng/lispy": "^0.4.5",
