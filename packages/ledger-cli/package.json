@@ -23,21 +23,22 @@
 	},
 	"dependencies": {
 		"@thi.ng/api": "^8.12.1",
-		"@thi.ng/args": "^2.9.0",
+		"@thi.ng/args": "^2.9.2",
 		"@thi.ng/compare": "^2.4.27",
-		"@thi.ng/csv": "^2.5.3",
-		"@thi.ng/date": "^2.7.61",
+		"@thi.ng/csv": "^2.5.5",
+		"@thi.ng/date": "^2.7.63",
 		"@thi.ng/errors": "^2.5.41",
-		"@thi.ng/file-io": "^2.2.6",
-		"@thi.ng/lispy": "^0.4.3",
+		"@thi.ng/file-io": "^2.2.8",
+		"@thi.ng/lispy": "^0.4.5",
 		"@thi.ng/logger": "^3.1.16",
-		"@thi.ng/markdown-table": "^1.0.31",
-		"@thi.ng/transducers": "^9.6.6",
+		"@thi.ng/markdown-table": "^1.0.33",
+		"@thi.ng/transducers": "^9.6.8",
+		"@thi.ng/trie": "^2.0.0",
 		"dotenv": "^17.2.1"
 	},
 	"devDependencies": {
-		"@types/node": "^24.2.0",
-		"typedoc": "^0.28.9",
+		"@types/node": "^24.2.1",
+		"typedoc": "^0.28.10",
 		"typescript": "^5.9.2"
 	},
 	"keywords": [
