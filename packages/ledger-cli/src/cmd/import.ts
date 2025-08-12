@@ -32,30 +32,37 @@ import { ARG_DB } from "../args.js";
 interface ImportOpts extends CommonOpts {
 	db: string;
 	dryRun: boolean;
-	rules: string;
+	spec: string;
 }
 
 export const IMPORT: Command<ImportOpts, CommonOpts, AppCtx<ImportOpts>> = {
-	desc: "Import transactions from CSV using provided import rules & transforms",
+	desc: "Import transactions from CSV using provided import spec",
 	opts: <Args<ImportOpts>>{
 		...ARG_DB,
 		...ARG_DRY_RUN,
-		rules: string({
-			alias: "r",
-			desc: "Import rules (CSV column transforms)",
+		spec: string({
+			alias: "s",
+			desc: "Import spec (TX defaults & CSV column mappings/transforms)",
 			optional: false,
 		}),
 	},
 	fn: command,
 };
 
-export interface ImportColumnSpec extends ColumnSpec {
+interface ImportSpec {
+	defaults: Partial<Transaction>;
+	columns: Record<string, ImportColumnSpec>;
+}
+
+interface ImportColumnSpec {
 	alias: string;
+	tx?: string;
 	default?: any;
 }
 
 async function command(ctx: AppCtx<ImportOpts>) {
-	const rules = compileRules(readJSON(ctx.opts.rules, ctx.logger));
+	const spec = readJSON<ImportSpec>(ctx.opts.spec, ctx.logger);
+	const columns = compileColumnSpecs(spec.columns);
 	let db: Transaction[] = [];
 	try {
 		db = readJSON<Transaction[]>(ctx.opts.db, ctx.logger);
@@ -65,37 +72,39 @@ async function command(ctx: AppCtx<ImportOpts>) {
 	const index = new Set(db.map((x) => x.hash));
 	const delta = db.length - index.size;
 	if (delta) illegalState(`DB contains ${delta} duplicate transactions`);
-	const tx = transduce(
-		comp(
-			mapcat((path) => parseFile(ctx, path, rules)),
-			map((tx) => {
-				tx.hash = hashTransaction(<HashableTransaction>tx);
-				return <Transaction>tx;
-			}),
-			filter((tx) => {
-				if (index.has(tx.hash)) {
-					ctx.logger.debug(
-						`skipping duplicate tx: ${JSON.stringify(tx)}`
-					);
-					return false;
-				}
-				index.add(tx.hash);
-				return true;
-			})
-		),
-		push<Transaction>(),
-		ctx.inputs
-	);
-	if (!tx.length) {
-		ctx.logger.info("no new transactions imported...");
-		return;
+	try {
+		const tx = transduce(
+			comp(
+				mapcat((path) => parseFile(ctx, path, columns)),
+				map((tx) => <HashableTransaction>{ ...spec.defaults, ...tx }),
+				map(injectHash),
+				filter((tx) => {
+					if (index.has(tx.hash)) {
+						ctx.logger.debug(
+							`skipping duplicate tx: ${JSON.stringify(tx)}`
+						);
+						return false;
+					}
+					index.add(tx.hash);
+					return true;
+				})
+			),
+			push<Transaction>(),
+			ctx.inputs
+		);
+		if (!tx.length) {
+			ctx.logger.info("no new transactions imported...");
+			return;
+		}
+		ctx.logger.info(`adding ${tx.length} new transactions`);
+		db = db.concat(tx).sort(compareByKey("date"));
+		writeJSON(ctx.opts.db, db, null, 4, ctx.logger, ctx.opts.dryRun);
+	} catch (e) {
+		console.log(e);
 	}
-	ctx.logger.info(`adding ${tx.length} new transactions`);
-	db = db.concat(tx).sort(compareByKey("date"));
-	writeJSON(ctx.opts.db, db, null, 4, ctx.logger, ctx.opts.dryRun);
 }
 
-const compileRules = (rules: Record<string, any>) =>
+const compileColumnSpecs = (rules: Record<string, ImportColumnSpec>) =>
 	transduce(
 		map(([k, v]) => {
 			let tx: Maybe<CellTransform>;
@@ -104,20 +113,20 @@ const compileRules = (rules: Record<string, any>) =>
 				if (!tx)
 					illegalArgs(`column '${k}' unknown transform ID: ${v.tx}`);
 			}
-			return <[string, ImportColumnSpec]>[k, { ...v, tx }];
+			return <[string, ColumnSpec]>[k, { ...v, tx }];
 		}),
-		assocObj<ImportColumnSpec>(),
+		assocObj<ColumnSpec>(),
 		pairs(rules)
 	);
 
-const parseFile = (ctx: AppCtx<ImportOpts>, path: string, rules: ColumnSpecs) =>
-	parseCSVFromString(
-		{
-			all: false,
-			cols: rules,
-		},
-		readText(path, ctx.logger)
-	);
+const parseFile = (ctx: AppCtx<ImportOpts>, path: string, cols: ColumnSpecs) =>
+	parseCSVFromString({ all: false, cols }, readText(path, ctx.logger));
+
+const injectHash = (tx: HashableTransaction) => {
+	const $tx = <Transaction>tx;
+	$tx.hash = hashTransaction(tx);
+	return $tx;
+};
 
 const hashTransaction = (tx: HashableTransaction) =>
 	bufferHash(
