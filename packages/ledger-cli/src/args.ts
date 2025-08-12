@@ -32,3 +32,10 @@ export const ARG_JOURNAL = {
 		default: process.env.THING_JOURNAL_FILE!,
 	}),
 };
+
+export const ARG_OUT_FILE = {
+	outFile: string({
+		alias: "o",
+		desc: "Output file (uses stdout if omitted)",
+	}),
+};
