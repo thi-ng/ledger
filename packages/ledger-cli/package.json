@@ -1,7 +1,7 @@
 {
 	"name": "@thi.ng/ledger-cli",
 	"version": "1.0.0",
-	"description": "TODO",
+	"description": "Multi-command CLI for thi.ng/ledger toolchain",
 	"type": "module",
 	"module": "./index.js",
 	"typings": "./index.d.ts",
