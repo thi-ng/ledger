@@ -1,5 +1,5 @@
 import type { Maybe } from "@thi.ng/api";
-import { ARG_DRY_RUN, string, type Args, type Command } from "@thi.ng/args";
+import { ARG_DRY_RUN, string, type Command } from "@thi.ng/args";
 import { compareByKey } from "@thi.ng/compare";
 import {
 	float,
@@ -37,19 +37,20 @@ interface ImportOpts extends CommonOpts {
 
 export const IMPORT: Command<ImportOpts, CommonOpts, AppCtx<ImportOpts>> = {
 	desc: "Import transactions from CSV using provided import spec",
-	opts: <Args<ImportOpts>>{
+	opts: {
 		...ARG_DB,
 		...ARG_DRY_RUN,
 		spec: string({
 			alias: "s",
 			desc: "Import spec (TX defaults & CSV column mappings/transforms)",
-			optional: false,
+			required: true,
 		}),
 	},
 	fn: command,
 };
 
 interface ImportSpec {
+	delim?: string;
 	defaults: Partial<Transaction>;
 	columns: Record<string, ImportColumnSpec>;
 }
@@ -75,7 +76,7 @@ async function command(ctx: AppCtx<ImportOpts>) {
 	try {
 		const tx = transduce(
 			comp(
-				mapcat((path) => parseFile(ctx, path, columns)),
+				mapcat((path) => parseFile(ctx, path, columns, spec.delim)),
 				map((tx) => <HashableTransaction>{ ...spec.defaults, ...tx }),
 				map(injectHash),
 				filter((tx) => {
@@ -119,8 +120,13 @@ const compileColumnSpecs = (rules: Record<string, ImportColumnSpec>) =>
 		pairs(rules)
 	);
 
-const parseFile = (ctx: AppCtx<ImportOpts>, path: string, cols: ColumnSpecs) =>
-	parseCSVFromString({ all: false, cols }, readText(path, ctx.logger));
+const parseFile = (
+	ctx: AppCtx<ImportOpts>,
+	path: string,
+	cols: ColumnSpecs,
+	delim?: string
+) =>
+	parseCSVFromString({ all: false, cols, delim }, readText(path, ctx.logger));
 
 const injectHash = (tx: HashableTransaction) => {
 	const $tx = <Transaction>tx;

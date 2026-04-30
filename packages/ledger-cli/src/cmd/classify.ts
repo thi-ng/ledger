@@ -1,4 +1,4 @@
-import { ARG_DRY_RUN, strings, type Args, type Command } from "@thi.ng/args";
+import { ARG_DRY_RUN, strings, type Command } from "@thi.ng/args";
 import { readJSON, readJSONAsync, writeJSON } from "@thi.ng/file-io";
 import { ENV, evalSource } from "@thi.ng/lispy";
 import { comp, keep, mapcat, push, transduce } from "@thi.ng/transducers";
@@ -24,14 +24,14 @@ export const CLASSIFY: Command<
 	AppCtx<ClassifyOpts>
 > = {
 	desc: "Classify transactions using provided rules & filters",
-	opts: <Args<ClassifyOpts>>{
+	opts: {
 		...ARG_DB,
 		...ARG_DRY_RUN,
 		...ARG_JOURNAL,
 		rules: strings({
 			alias: "r",
 			desc: "Classifier rules",
-			optional: false,
+			required: true,
 		}),
 	},
 	inputs: 0,
@@ -107,7 +107,7 @@ const classifyTransaction = (
 			{ string: "'" }
 		);
 		if (result) {
-			ctx.logger.debug(rule.then, tx.payee, tx.amount);
+			ctx.logger.debug(rule.then, tx.date, tx.amount, tx.payee);
 			Object.assign(entry, rule.then);
 			isClassified = true;
 			break;

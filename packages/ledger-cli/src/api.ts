@@ -9,8 +9,10 @@ export interface CommonOpts {
 	quiet: boolean;
 }
 
-export interface AppCtx<T extends CommonOpts>
-	extends CommandCtx<T, CommonOpts> {}
+export interface AppCtx<T extends CommonOpts> extends CommandCtx<
+	T,
+	CommonOpts
+> {}
 
 export interface Transaction {
 	accountA: string;

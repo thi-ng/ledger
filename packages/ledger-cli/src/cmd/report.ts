@@ -1,12 +1,5 @@
 import { identity, type Nullable } from "@thi.ng/api";
-import {
-	flag,
-	oneOf,
-	string,
-	strings,
-	type Args,
-	type Command,
-} from "@thi.ng/args";
+import { flag, oneOf, string, strings, type Command } from "@thi.ng/args";
 import { formatCSVString } from "@thi.ng/csv";
 import { defmulti } from "@thi.ng/defmulti";
 import { readJSON, writeText } from "@thi.ng/file-io";
@@ -24,11 +17,11 @@ interface ReportOpts extends CommonOpts {
 	aggregate: boolean;
 	delim: string;
 	fmt: "csv" | "json" | "md";
-	from: string;
-	include: string[];
+	from?: string;
+	include?: string[];
 	journal: string;
 	outFile?: string;
-	to: string;
+	to?: string;
 }
 
 interface ComputeBalanceOpts {
@@ -45,7 +38,7 @@ interface Balance {
 
 export const REPORT: Command<ReportOpts, CommonOpts, AppCtx<ReportOpts>> = {
 	desc: "Produce balance reports (optionally filtered) in different formats",
-	opts: <Args<ReportOpts>>{
+	opts: {
 		...ARG_JOURNAL,
 		...ARG_OUT_FILE,
 		aggregate: flag({
@@ -57,7 +50,8 @@ export const REPORT: Command<ReportOpts, CommonOpts, AppCtx<ReportOpts>> = {
 			desc: "Delimiter char for nested balance IDs",
 			default: ":",
 		}),
-		fmt: oneOf(["csv", "json", "md"], {
+		fmt: oneOf({
+			opts: ["csv", "json", "md"],
 			alias: "f",
 			desc: "Output format",
 			default: "md",
@@ -144,7 +138,7 @@ const aggregateBalances = (
 				? [...trie.keys(subParts)].reduce(
 						(a, k) => a + balances[k.join(":")].num,
 						0
-				  )
+					)
 				: balances[subKey].num;
 			const currency = balances[k].currency;
 			rows.push([
