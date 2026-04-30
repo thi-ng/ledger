@@ -5,7 +5,7 @@
 	"description": "TODO",
 	"type": "module",
 	"dependencies": {
-		"@thi.ng/file-io": "^2.2.8",
-		"@thi.ng/logger": "^3.1.16"
+		"@thi.ng/file-io": "^2.2.31",
+		"@thi.ng/logger": "^3.3.3"
 	}
 }
