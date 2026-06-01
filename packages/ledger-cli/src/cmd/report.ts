@@ -1,9 +1,18 @@
 import { identity, type Nullable } from "@thi.ng/api";
 import { flag, oneOf, string, strings, type Command } from "@thi.ng/args";
 import { formatCSVString } from "@thi.ng/csv";
+import {
+	ceilMonth,
+	dateTime,
+	defFormat,
+	FMT_MM,
+	FMT_yyyy,
+	months,
+} from "@thi.ng/date";
 import { defmulti } from "@thi.ng/defmulti";
 import { readJSON, writeText } from "@thi.ng/file-io";
 import { table, type Row } from "@thi.ng/markdown-table";
+import { interpolateKeys } from "@thi.ng/strings";
 import { defMultiTrie } from "@thi.ng/trie";
 import {
 	CURRENCY_DIGITS,
@@ -15,6 +24,7 @@ import { ARG_JOURNAL, ARG_OUT_FILE } from "../args.js";
 
 interface ReportOpts extends CommonOpts {
 	aggregate: boolean;
+	byMonth: boolean;
 	delim: string;
 	fmt: "csv" | "json" | "md";
 	from?: string;
@@ -45,6 +55,7 @@ export const REPORT: Command<ReportOpts, CommonOpts, AppCtx<ReportOpts>> = {
 			alias: "a",
 			desc: "Compute aggregates of nested balances",
 		}),
+		byMonth: flag({ alias: "m", desc: "Report monthly amounts" }),
 		delim: string({
 			alias: "d",
 			desc: "Delimiter char for nested balance IDs",
@@ -76,18 +87,48 @@ export const REPORT: Command<ReportOpts, CommonOpts, AppCtx<ReportOpts>> = {
 	fn: command,
 };
 
+const FMT_yyyyMM = defFormat(["yyyy", "-", "MM"]);
+
 async function command({ opts, logger }: AppCtx<ReportOpts>) {
 	const entries = readJSON<Entry[]>(opts.journal, logger);
-	const balances = computeBalances(entries, {
-		filters: opts.include,
-		from: opts.from,
-		to: opts.to,
-	});
-	const report = formatRows(opts.fmt, aggregateBalances(balances, opts));
-	if (opts.outFile) {
-		writeText(opts.outFile, report, logger);
+
+	function process($opts: ReportOpts) {
+		const balances = computeBalances(entries, {
+			filters: $opts.include,
+			from: $opts.from,
+			to: $opts.to,
+		});
+		const report = formatRows(
+			$opts.fmt,
+			aggregateBalances(balances, $opts)
+		);
+		if ($opts.outFile) {
+			writeText(
+				interpolateKeys($opts.outFile, {
+					year: FMT_yyyy($opts.from),
+					month: FMT_MM($opts.from),
+				}),
+				report,
+				logger
+			);
+		} else {
+			console.log(report);
+		}
+	}
+
+	if (opts.byMonth) {
+		const from = opts.from ?? "1970-01";
+		const to = opts.to ?? FMT_yyyyMM(ceilMonth(dateTime()));
+		for (let month of months(from, to)) {
+			if (!opts.outFile) console.log(`\n${FMT_yyyyMM(month)}\n`);
+			process({
+				...opts,
+				from: FMT_yyyyMM(month),
+				to: FMT_yyyyMM(ceilMonth(month)),
+			});
+		}
 	} else {
-		console.log(report);
+		process(opts);
 	}
 }
 
