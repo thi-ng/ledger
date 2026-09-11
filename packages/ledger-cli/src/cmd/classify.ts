@@ -18,6 +18,10 @@ interface ClassifyOpts extends CommonOpts {
 	rules: string[];
 }
 
+interface ClassifierState {
+	unclassified: number;
+}
+
 export const CLASSIFY: Command<
 	ClassifyOpts,
 	CommonOpts,
@@ -45,23 +49,31 @@ async function command(ctx: AppCtx<ClassifyOpts>) {
 		)
 	);
 	const db = readJSON<Transaction[]>(ctx.opts.db, ctx.logger);
+	const state: ClassifierState = { unclassified: 0 };
 	const entries = transduce(
 		comp(
 			mapcat((tx) =>
-				specs.map((spec) => classifyTransaction(ctx, tx, spec))
+				specs.map((spec) => classifyTransaction(ctx, tx, spec, state))
 			),
 			keep()
 		),
 		push<Entry>(),
 		db
 	);
+	if (state.unclassified) {
+		ctx.logger.warn(
+			state.unclassified,
+			" unclassified transactions remaining"
+		);
+	}
 	writeJSON(ctx.opts.journal, entries, null, 4, ctx.logger, ctx.opts.dryRun);
 }
 
 const classifyTransaction = (
 	ctx: AppCtx<ClassifyOpts>,
 	tx: Transaction,
-	{ accountA, defaults, rules }: ClassifierSpec
+	{ accountA, defaults, rules }: ClassifierSpec,
+	state: ClassifierState
 ) => {
 	if (tx.accountA !== accountA) {
 		ctx.logger.debug("skipping non-matching tx", tx);
@@ -103,6 +115,12 @@ const classifyTransaction = (
 				match: (field: string, ...args: string[]) => {
 					return args.some((x) => new RegExp(x, "i").test(field));
 				},
+
+				"debit?": () => tx.amount < 0,
+				"credit?": () => tx.amount > 0,
+
+				"neg?": (value: number) => value < 0,
+				"pos?": (value: number) => value > 0,
 			},
 			{ string: "'" }
 		);
@@ -114,6 +132,7 @@ const classifyTransaction = (
 		}
 	}
 	if (!isClassified) {
+		state.unclassified++;
 		ctx.logger.warn("unclassified", tx.date, tx.amount, tx.payee, tx.desc);
 	}
 	return entry;
