@@ -17,29 +17,30 @@ export interface AppCtx<T extends CommonOpts> extends CommandCtx<
 export interface Transaction {
 	accountA: string;
 	accountB: string;
+	amount: number;
 	currencyA: string;
 	currencyB: string;
 	date: string;
-	type: string;
 	desc: string;
-	ref: string;
+	hash: string;
 	payee: string;
 	payeeID: string;
-	amount: number;
 	rate: number;
-	hash: string;
+	ref: string;
+	type: string;
 }
 
 export type HashableTransaction = Pick<
 	Transaction,
 	| "accountA"
 	| "accountB"
+	| "amount"
 	| "currencyA"
 	| "currencyB"
 	| "date"
 	| "desc"
 	| "ref"
-	| "amount"
+	| "type"
 >;
 
 export interface Classifier {

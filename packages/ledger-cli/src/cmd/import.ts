@@ -137,6 +137,7 @@ const injectHash = (tx: HashableTransaction) => {
 const hashTransaction = (tx: HashableTransaction) =>
 	bufferHash(
 		[
+			tx.type,
 			tx.accountA,
 			tx.accountB,
 			tx.date,
