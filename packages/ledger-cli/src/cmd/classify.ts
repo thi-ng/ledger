@@ -63,7 +63,7 @@ async function command(ctx: AppCtx<ClassifyOpts>) {
 	if (state.unclassified) {
 		ctx.logger.warn(
 			state.unclassified,
-			" unclassified transactions remaining"
+			"unclassified transactions remaining"
 		);
 	}
 	writeJSON(ctx.opts.journal, entries, null, 4, ctx.logger, ctx.opts.dryRun);
