@@ -93,7 +93,7 @@ async function command({ opts, logger }: AppCtx<ReportOpts>) {
 	const entries = readJSON<Entry[]>(opts.journal, logger);
 
 	function process($opts: ReportOpts) {
-		const balances = computeBalances(entries, {
+		const { balances, filteredEntries } = computeBalances(entries, {
 			filters: $opts.include,
 			from: $opts.from,
 			to: $opts.to,
@@ -113,6 +113,12 @@ async function command({ opts, logger }: AppCtx<ReportOpts>) {
 			);
 		} else {
 			console.log(report);
+		}
+		if ($opts.verbose) {
+			console.log();
+			for (let e of filteredEntries) {
+				console.log(formatEntry(e));
+			}
 		}
 	}
 
@@ -137,12 +143,14 @@ const computeBalances = (
 	opts: Partial<ComputeBalanceOpts>
 ) => {
 	const balances: Record<string, Balance> = {};
+	const filteredEntries: Entry[] = [];
 
 	const ensureBalance = (id: string, currency: string) =>
 		balances[id] ?? (balances[id] = { currency, amount: 0, num: 0 });
 
 	for (let entry of entries) {
 		if (!includeEntry(entry, opts)) continue;
+		filteredEntries.push(entry);
 		const a = ensureBalance(entry.accountA, entry.currency);
 		const b = ensureBalance(entry.accountB, entry.currency);
 		a.amount += entry.amount;
@@ -150,7 +158,7 @@ const computeBalances = (
 		a.num++;
 		b.num++;
 	}
-	return balances;
+	return { balances, filteredEntries };
 };
 
 const aggregateBalances = (
@@ -220,6 +228,9 @@ const formatRows = defmulti<ReportOpts["fmt"], Row[], string>(
 			}),
 	}
 );
+
+const formatEntry = (e: Entry) =>
+	[e.date, e.amount, e.currency, e.accountB, e.desc].join(" ");
 
 const includeEntry = (
 	entry: Entry,
